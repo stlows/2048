@@ -1,22 +1,4 @@
-let colors = [
-  "#f2f2f2",
-  "#ede9d3",
-  "#e3dbb1",
-  "#e3cfb1",
-  "#dbb8a7",
-  "#d6a1ae",
-  "#d194ca",
-  "#b394d1",
-  "#8881d6",
-  "#7eb1d9",
-  "#7bdbdb",
-  "#73d196",
-  "#74c767",
-  "#9aba63",
-  "#aec24c",
-  "#c9c120"
-];
-let fontSizes = [80, 80, 60, 40, 35];
+let fontSizesClass = ["bigger", "big", "normal", "small", "smaller"];
 
 let score = 0;
 let odds2 = 0.9;
@@ -30,7 +12,7 @@ function createEmptyTiles(n) {
     tiles.push({
       x: x,
       y: y,
-      value: null
+      value: Math.pow(2, i + 1) // */ null
     });
   }
   return tiles;
@@ -39,7 +21,8 @@ function createEmptyTiles(n) {
 function getEmptyTiles() {
   return tiles.filter(t => !t.value);
 }
-function flash_board_border(color, times, interval) {
+
+function flashBoardBorder(color, times, interval) {
   let board = document.getElementById("game-board");
   let count = 1;
   let flashId = setInterval(function() {
@@ -56,7 +39,7 @@ function flash_board_border(color, times, interval) {
   }, interval);
   board.style.borderColor = color;
 }
-function update_board() {
+function updateBoard() {
   let board = document.getElementById("game-board");
   board.innerHTML = "";
   for (let i = 0; i < tiles.length; i++) {
@@ -76,8 +59,8 @@ function getTileDOMObject(tile) {
     numDiv.classList.add("number");
     let power = Math.log(tile.value) / Math.log(2);
     let numLen = tile.value.toString().length;
-    numDiv.style.backgroundColor = colors[power - 1];
-    numDiv.style.fontSize = fontSizes[numLen - 1] + "px";
+    numDiv.classList.add("power" + power);
+    numDiv.classList.add(fontSizesClass[numLen - 1]);
     numDiv.innerHTML = tile.value;
     tileDiv.appendChild(numDiv);
   }
@@ -87,6 +70,7 @@ function getTileDOMObject(tile) {
 function addNewTile() {
   let emptyTiles = getEmptyTiles(tiles);
   if (emptyTiles.length === 0) {
+    gameOver();
     return null;
   }
   let r = randomElement(emptyTiles);
@@ -95,29 +79,36 @@ function addNewTile() {
   } else {
     r.value = 4;
   }
-  update_board();
+  updateBoard();
+}
+
+function gameOver() {
+  let board = document.getElementById("game-board");
+  let overlap = document.createElement("div");
+  overlap.innerHTML = "Yeah!";
+  board.appendChild(overlap);
 }
 
 function move(e) {
   let validMove = ["ArrowRight", "ArrowLeft", "ArrowDown", "ArrowUp"].some(s => s === e.key);
-  let something_moved = false;
+  let somethingMoved = false;
   if (validMove) {
     for (let i = 0; i < Math.sqrt(tiles.length); i++) {
-      let row = get_row(e.key, i);
-      let row_copy = get_row_copy(row);
-      move_row(row);
-      something_moved = something_moved || !is_same_tiles(row, row_copy);
+      let row = getRow(e.key, i);
+      let rowCopy = getRowCopy(row);
+      moveRow(row);
+      somethingMoved = somethingMoved || !isSameTiles(row, rowCopy);
     }
-    if (something_moved) {
-      update_board();
+    if (somethingMoved) {
+      updateBoard();
       addNewTile();
     } else {
-      flash_board_border("red", 3, 150);
+      flashBoardBorder("red", 3, 70);
     }
   }
 }
 
-function get_row_copy(row) {
+function getRowCopy(row) {
   let result = [];
   for (let i = 0; i < row.length; i++) {
     result.push({
@@ -129,23 +120,22 @@ function get_row_copy(row) {
   return result;
 }
 
-function is_same_tiles(tiles1, tiles2) {
+function isSameTiles(tiles1, tiles2) {
   if (tiles1.length !== tiles2.length) {
     return false;
   }
   for (let i = 0; i < tiles1.length; i++) {
-    if (!is_same_tile(tiles1[i], tiles2[i])) {
+    if (!isSameTile(tiles1[i], tiles2[i])) {
       return false;
     }
   }
   return true;
 }
-function is_same_tile(tile1, tile2) {
+function isSameTile(tile1, tile2) {
   return tile1.x === tile2.x && tile1.y === tile2.y && tile1.value === tile2.value;
 }
 
-// dir = l,r,u,d
-function get_row(key, i) {
+function getRow(key, i) {
   let toReturn = [];
 
   if (key === "ArrowLeft" || key === "ArrowRight") {
@@ -160,13 +150,13 @@ function get_row(key, i) {
 
   return toReturn;
 }
-function move_row(tiles) {
+function moveRow(tiles) {
   crush(tiles);
   shift(tiles);
   crush(tiles);
 }
 
-function fusion_tiles(tile1, tile2, targetTile) {
+function fusionTiles(tile1, tile2, targetTile) {
   if (tile1.value && tile1.value === tile2.value) {
     let sum = tile1.value * 2;
     tile1.value = null;
@@ -176,7 +166,7 @@ function fusion_tiles(tile1, tile2, targetTile) {
   }
 }
 
-function move_tile(tile, targetTile) {
+function moveTile(tile, targetTile) {
   if (targetTile === tile) {
     return;
   }
@@ -188,7 +178,7 @@ function crush(tiles) {
   let t = 0;
   for (let i = 0; i < tiles.length; i++) {
     if (tiles[i].value) {
-      move_tile(tiles[i], tiles[t]);
+      moveTile(tiles[i], tiles[t]);
       t++;
     }
   }
@@ -197,15 +187,12 @@ function shift(tiles) {
   let i = 0;
   while (i < tiles.length - 1 && tiles[i].value) {
     if (tiles[i].value === tiles[i + 1].value) {
-      fusion_tiles(tiles[i], tiles[i + 1], tiles[i]);
+      fusionTiles(tiles[i], tiles[i + 1], tiles[i]);
       i += 2;
     } else {
       i++;
     }
   }
-}
-function get_tile(x, y) {
-  return tiles.find(t => t.x === x && t.y === y);
 }
 
 function randomElement(a) {
@@ -218,7 +205,7 @@ function newGame() {
   tiles = createEmptyTiles(4);
   addNewTile();
   addNewTile();
-  update_board();
+  updateBoard();
 }
 
 //newGame();

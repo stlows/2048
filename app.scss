@@ -4,30 +4,40 @@
   box-sizing: border-box;
 }
 
+$small-screen: 700px;
+$medium-screen: 1024px;
+
 body {
   font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
-}
-header {
-  text-align: center;
-  margin: 5em 0;
-
-  h1 {
-    text-transform: uppercase;
-  }
-  h3 {
-    a {
-      text-decoration: none;
-      color: #0ad;
-    }
-  }
 }
 
 .container {
   box-shadow: 0 0 15px rgba(black, 0.25);
   width: 50%;
-  margin: auto;
+  @media screen and (max-width: $medium-screen) {
+    width: 75%;
+  }
+  @media screen and (max-width: $small-screen) {
+    margin: 5px auto;
+    width: 95%;
+  }
+  margin: 2em auto;
   padding: 2em;
   text-align: center;
+  header {
+    text-align: center;
+    margin-bottom: 2em;
+    h1 {
+      text-transform: uppercase;
+    }
+    h4 {
+      a {
+        text-decoration: none;
+        color: #0ad;
+      }
+    }
+  }
+
   .score {
     margin: 1em auto;
   }
@@ -45,29 +55,128 @@ header {
 }
 
 $tile-size: 100px;
-$grid-gap: 7px;
+$tile-size-small: 50px;
+$grid-gap: 5px;
 $two: white;
 
 #game-board {
   margin: auto;
   background: #333;
   width: $tile-size * 4 + $grid-gap * 5;
+  @media screen and (max-width: $small-screen) {
+    width: $tile-size-small * 4 + $grid-gap * 5;
+  }
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   grid-gap: $grid-gap;
   border: $grid-gap solid #333;
-
+  position: relative;
   .tile {
     width: $tile-size;
     height: $tile-size;
+    @media screen and (max-width: $small-screen) {
+      width: $tile-size-small;
+      height: $tile-size-small;
+    }
     background-color: #ddd;
     .number {
       width: 100%;
       height: 100%;
-      font-size: $tile-size;
       line-height: $tile-size;
+      @media screen and (max-width: $small-screen) {
+        line-height: $tile-size-small;
+      }
       text-align: center;
       color: #333;
+      &.bigger {
+        font-size: $tile-size * 0.8;
+      }
+      &.big {
+        font-size: 0.8 * $tile-size;
+      }
+      &.normal {
+        font-size: 0.6 * $tile-size;
+      }
+      &.small {
+        font-size: 0.4 * $tile-size;
+      }
+      &.smaller {
+        font-size: 0.35 * $tile-size;
+      }
+      @media screen and (max-width: $small-screen) {
+        &.bigger {
+          font-size: 0.8 * $tile-size-small;
+        }
+        &.big {
+          font-size: 0.8 * $tile-size-small;
+        }
+        &.normal {
+          font-size: 0.6 * $tile-size-small;
+        }
+        &.small {
+          font-size: 0.4 * $tile-size-small;
+        }
+        &.smaller {
+          font-size: 0.35 * $tile-size-small;
+        }
+      }
+      &.power1 {
+        background-color: #f2f2f2;
+      }
+      &.power2 {
+        background-color: #ede9d3;
+      }
+      &.power3 {
+        background-color: #e3dbb1;
+      }
+      &.power4 {
+        background-color: #e3cfb1;
+      }
+      &.power5 {
+        background-color: #dbb8a7;
+      }
+      &.power6 {
+        background-color: #d6a1ae;
+      }
+      &.power7 {
+        background-color: #d194ca;
+      }
+      &.power8 {
+        background-color: #b394d1;
+      }
+      &.power9 {
+        background-color: #8881d6;
+      }
+      &.power10 {
+        background-color: #7eb1d9;
+      }
+      &.power11 {
+        background-color: #7bdbdb;
+      }
+      &.power12 {
+        background-color: #73d196;
+      }
+      &.power13 {
+        background-color: #74c767;
+      }
+      &.power14 {
+        background-color: #9aba63;
+      }
+      &.power15 {
+        background-color: #aec24c;
+      }
+      &.power16 {
+        background-color: #c9c120;
+      }
     }
+  }
+
+  .overlap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-color: rgba(black, 0.3);
   }
 }
