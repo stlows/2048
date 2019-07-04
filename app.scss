@@ -27,20 +27,21 @@ header {
   width: 50%;
   margin: auto;
   padding: 2em;
-}
-
-.controls {
-  margin: 1em auto;
-  button.btn-newgame {
-    background-color: #fff;
-    color: black;
-    border: none;
-    box-shadow: 0 0 5px 0 rgba(black, 0.3);
-    padding: 1em 2em;
+  text-align: center;
+  .score {
+    margin: 1em auto;
   }
-}
-.score {
-  text-align: right;
+  .controls {
+    margin: 1em auto;
+    button.btn-newgame {
+      background-color: #fff;
+      color: black;
+      border: none;
+      box-shadow: 0 0 5px 0 rgba(black, 0.3);
+      padding: 1em 2em;
+      cursor: pointer;
+    }
+  }
 }
 
 $tile-size: 100px;

@@ -18,25 +18,54 @@ let colors = [
 ];
 let fontSizes = [80, 80, 60, 40, 35];
 
-function getEmptyTiles(n) {
+let score = 0;
+let odds2 = 0.9;
+let defaultBorderColor = "black";
+
+function createEmptyTiles(n) {
   let tiles = [];
-  for (let i = 1; i <= Math.pow(n, 2); i++) {
+  for (let i = 0; i < Math.pow(n, 2); i++) {
+    let x = i % 4;
+    let y = Math.floor(i / 4);
     tiles.push({
-      x: Math.floor(i / 4),
-      y: i % 4,
-      value: Math.pow(2, i)
+      x: x,
+      y: y,
+      value: null
     });
   }
   return tiles;
 }
 
-function update_board(tiles) {
+function getEmptyTiles() {
+  return tiles.filter(t => !t.value);
+}
+function flash_board_border(color, times, interval) {
+  let board = document.getElementById("game-board");
+  let count = 1;
+  let flashId = setInterval(function() {
+    if (board.style.borderColor === defaultBorderColor) {
+      board.style.borderColor = color;
+    } else {
+      board.style.borderColor = defaultBorderColor;
+    }
+
+    if (count++ === times * 2) {
+      clearInterval(flashId);
+      board.style.borderColor = defaultBorderColor;
+    }
+  }, interval);
+  board.style.borderColor = color;
+}
+function update_board() {
   let board = document.getElementById("game-board");
   board.innerHTML = "";
   for (let i = 0; i < tiles.length; i++) {
     let tile = getTileDOMObject(tiles[i]);
     board.appendChild(tile);
   }
+
+  let scoreDOM = document.getElementById("score-value");
+  scoreDOM.innerHTML = score;
 }
 function getTileDOMObject(tile) {
   let tileDiv = document.createElement("div");
@@ -55,10 +84,180 @@ function getTileDOMObject(tile) {
   return tileDiv;
 }
 
-function get_tile(tiles, x, y) {
+function addNewTile() {
+  let emptyTiles = getEmptyTiles(tiles);
+  if (emptyTiles.length === 0) {
+    return null;
+  }
+  let r = randomElement(emptyTiles);
+  if (Math.random() < odds2) {
+    r.value = 2;
+  } else {
+    r.value = 4;
+  }
+  update_board();
+}
+
+function move(e) {
+  let validMove = ["ArrowRight", "ArrowLeft", "ArrowDown", "ArrowUp"].some(s => s === e.key);
+  let something_moved = false;
+  if (validMove) {
+    for (let i = 0; i < Math.sqrt(tiles.length); i++) {
+      let row = get_row(e.key, i);
+      let row_copy = get_row_copy(row);
+      move_row(row);
+      something_moved = something_moved || !is_same_tiles(row, row_copy);
+    }
+    if (something_moved) {
+      update_board();
+      addNewTile();
+    } else {
+      flash_board_border("red", 3, 150);
+    }
+  }
+}
+
+function get_row_copy(row) {
+  let result = [];
+  for (let i = 0; i < row.length; i++) {
+    result.push({
+      x: row[i].x,
+      y: row[i].y,
+      value: row[i].value
+    });
+  }
+  return result;
+}
+
+function is_same_tiles(tiles1, tiles2) {
+  if (tiles1.length !== tiles2.length) {
+    return false;
+  }
+  for (let i = 0; i < tiles1.length; i++) {
+    if (!is_same_tile(tiles1[i], tiles2[i])) {
+      return false;
+    }
+  }
+  return true;
+}
+function is_same_tile(tile1, tile2) {
+  return tile1.x === tile2.x && tile1.y === tile2.y && tile1.value === tile2.value;
+}
+
+// dir = l,r,u,d
+function get_row(key, i) {
+  let toReturn = [];
+
+  if (key === "ArrowLeft" || key === "ArrowRight") {
+    toReturn = tiles.filter(t => t.y === i);
+  } else if (key === "ArrowUp" || key === "ArrowDown") {
+    toReturn = tiles.filter(t => t.x === i);
+  }
+
+  if (key === "ArrowRight" || key === "ArrowDown") {
+    toReturn.reverse();
+  }
+
+  return toReturn;
+}
+function move_row(tiles) {
+  crush(tiles);
+  shift(tiles);
+  crush(tiles);
+}
+
+function fusion_tiles(tile1, tile2, targetTile) {
+  if (tile1.value && tile1.value === tile2.value) {
+    let sum = tile1.value * 2;
+    tile1.value = null;
+    tile2.value = null;
+    targetTile.value = sum;
+    score += sum;
+  }
+}
+
+function move_tile(tile, targetTile) {
+  if (targetTile === tile) {
+    return;
+  }
+  targetTile.value = tile.value;
+  tile.value = null;
+}
+
+function crush(tiles) {
+  let t = 0;
+  for (let i = 0; i < tiles.length; i++) {
+    if (tiles[i].value) {
+      move_tile(tiles[i], tiles[t]);
+      t++;
+    }
+  }
+}
+function shift(tiles) {
+  let i = 0;
+  while (i < tiles.length - 1 && tiles[i].value) {
+    if (tiles[i].value === tiles[i + 1].value) {
+      fusion_tiles(tiles[i], tiles[i + 1], tiles[i]);
+      i += 2;
+    } else {
+      i++;
+    }
+  }
+}
+function get_tile(x, y) {
   return tiles.find(t => t.x === x && t.y === y);
 }
 
-let tiles = getEmptyTiles(4);
-update_board(tiles);
-console.log(tiles);
+function randomElement(a) {
+  var randomIndex = Math.floor(Math.random() * a.length);
+
+  return a[randomIndex];
+}
+
+function newGame() {
+  tiles = createEmptyTiles(4);
+  addNewTile();
+  addNewTile();
+  update_board();
+}
+
+//newGame();
+
+// let tiles = [{ x: 0, y: 0, value: null }, { x: 1, y: 0, value: 4 }, { x: 2, y: 0, value: 2 }, { x: 3, y: 0, value: 2 }];
+// console.log(tiles.map(x => x.value));
+// crush(tiles);
+// shift(tiles);
+// crush(tiles);
+// console.log(tiles.map(x => x.value));
+
+// console.log("----");
+// tiles = [{ x: 0, y: 0, value: null }, { x: 1, y: 0, value: null }, { x: 2, y: 0, value: null }, { x: 3, y: 0, value: null }];
+// console.log(tiles.map(x => x.value));
+// crush(tiles);
+// shift(tiles);
+// crush(tiles);
+// console.log(tiles.map(x => x.value));
+
+// console.log("----");
+// tiles = [{ x: 0, y: 0, value: 2 }, { x: 1, y: 0, value: 2 }, { x: 2, y: 0, value: 2 }, { x: 3, y: 0, value: 2 }];
+// console.log(tiles.map(x => x.value));
+// crush(tiles);
+// shift(tiles);
+// crush(tiles);
+// console.log(tiles.map(x => x.value));
+
+// console.log("----");
+// tiles = [{ x: 0, y: 0, value: 2 }, { x: 1, y: 0, value: null }, { x: 2, y: 0, value: 2 }, { x: 3, y: 0, value: 2 }];
+// console.log(tiles.map(x => x.value));
+// crush(tiles);
+// shift(tiles);
+// crush(tiles);
+// console.log(tiles.map(x => x.value));
+
+// console.log("----");
+// tiles = [{ x: 0, y: 0, value: 2 }, { x: 1, y: 0, value: null }, { x: 2, y: 0, value: 2 }, { x: 3, y: 0, value: 2 }];
+// console.log(tiles.map(x => x.value));
+// crush(tiles);
+// shift(tiles);
+// crush(tiles);
+// console.log(tiles.map(x => x.value));

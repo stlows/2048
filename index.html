@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <link rel="stylesheet" href="app.min.css" />
     <title>2048</title>
+    
   </head>
   <body>
     <header>
@@ -14,11 +15,16 @@
     </header>
     <div class="container">
       <div id="game-board"></div>
+      <div class="score">Score: <span id="score-value">0</span></div>
       <div class="controls">
-            <button class="btn-newgame">New game</button>
+            <button class="btn-newgame" onclick="newGame()">New game</button>
           </div>
       </div>
     </div>
   </body>
   <script src="app.js"></script>
+  <script>
+      document.onkeydown = function(e) {move(e)};
+      window.onload = function() { newGame() }
+    </script>
 </html>
