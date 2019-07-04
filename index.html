@@ -20,7 +20,7 @@
 
       <div class="score">Score: <span id="score-value">0</span></div>
       <div class="controls">
-            <button class="btn-newgame" onclick="newGame()">New game</button>
+            <button class="btn" onclick="newGame()">New game</button>
           </div>
       </div>
     </div>
@@ -28,6 +28,6 @@
   <script src="app.js"></script>
   <script>
       document.onkeydown = function(e) {move(e)};
-      window.onload = function() { newGame() }
+      window.onload = function() { newGame(); addNewTile() }
     </script>
 </html>

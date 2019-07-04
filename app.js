@@ -84,8 +84,13 @@ function addNewTile() {
 
 function gameOver() {
   let board = document.getElementById("game-board");
+  console.log("game over");
   let overlap = document.createElement("div");
-  overlap.innerHTML = "Yeah!";
+  overlap.classList.add("overlap");
+  let overlapContent = document.createElement("div");
+  overlapContent.classList.add("overlap-content");
+  overlap.appendChild(overlapContent);
+  overlapContent.innerHTML = "You got to 2048 !";
   board.appendChild(overlap);
 }
 
@@ -203,8 +208,8 @@ function randomElement(a) {
 
 function newGame() {
   tiles = createEmptyTiles(4);
-  addNewTile();
-  addNewTile();
+  //addNewTile();
+  //addNewTile();
   updateBoard();
 }
 

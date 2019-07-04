@@ -43,7 +43,7 @@ body {
   }
   .controls {
     margin: 1em auto;
-    button.btn-newgame {
+    button.btn {
       background-color: #fff;
       color: black;
       border: none;
@@ -178,5 +178,15 @@ $two: white;
     bottom: 0;
     right: 0;
     background-color: rgba(black, 0.3);
+    .overlap-content {
+      background-color: #fff;
+      box-shadow: 0 0 15px 0 rgba(black, 0.3);
+      margin: auto;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 2em 2em;
+    }
   }
 }
