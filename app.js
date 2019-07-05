@@ -168,7 +168,6 @@ function noPossibleMove() {
   }
   for (let i = 0; i < tiles.length; i++) {
     let neighbors = getNeighbors(tiles[i]);
-    console.log(neighbors);
     if (neighbors.some(t => t.value === tiles[i].value)) {
       return false;
     }
