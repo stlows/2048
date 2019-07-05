@@ -354,7 +354,7 @@ function btnChangeSize() {
 }
 function changeSize() {
   let newGridSize = document.getElementById("newGridSize").value;
-  if ([2, 3, 4, 5, 6, 7, 8].every(i => i !== newGridSize)) {
+  if ([2, 3, 4, 5, 6, 7, 8].every(i => i != newGridSize)) {
     popup("Incorect size.<br>Try again...");
     return;
   }
