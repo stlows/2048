@@ -341,7 +341,7 @@ function randomElement(a) {
 
 function newGame() {
   generateSpecialCss();
-  tiles = createEmptyTiles(gridSize);
+  tiles = createEmptyTiles();
   score = 0;
   addNewTile();
   addNewTile();
@@ -378,7 +378,9 @@ function loadGame() {
     return;
   }
   let newTiles = encodedPowers.split("").map(s => (s === "0" ? null : Math.pow(2, parseInt(s, 16))));
-  tiles = createEmptyTiles(gridSize);
+  gridSize = Math.sqrt(encodedPowers.length);
+  generateSpecialCss();
+  tiles = createEmptyTiles();
   score = 0;
   for (let i = 0; i < tiles.length; i++) {
     tiles[i].value = newTiles[i];
