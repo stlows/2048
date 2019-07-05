@@ -3,7 +3,7 @@ let fontSizesClass = ["bigger", "big", "normal", "small", "smaller"];
 let score = 0;
 let odds2 = 0.9;
 let defaultBorderColor = "black";
-let gridSize = 3;
+let gridSize = 4;
 let goal = 2048;
 let alreadyWon = false;
 let tileSize = 100;
@@ -349,17 +349,23 @@ function newGame() {
   updateBoard();
 }
 function btnChangeSize() {
-  popup("<p>Enter size (2 and 8):</p><input type='number' id='newGridSize' value='4' /><br><button onclick='changeSize()' class='btn'>Go</button>");
+  popup(
+    "<p>Enter size (2 and 8):</p><input type='number' id='newGridSize' value='4' min='2' max='8' /><br><button onclick='changeSize()' class='btn'>Go</button>"
+  );
 }
 function changeSize() {
   let newGridSize = document.getElementById("newGridSize").value;
+  if ([2, 3, 4, 5, 6, 7, 8].every(i => i !== newGridSize)) {
+    popup("Incorect size.<br>Try again...");
+    return;
+  }
   gridSize = parseInt(newGridSize);
   newGame();
 }
 
 function saveGame() {
   let encodedPowers = tiles.map(t => (t.value ? (Math.log(t.value) / Math.log(2)).toString(16) : 0)).join("");
-  popup("<p>Copy this code and load a game using it later:</p><p>" + encodedPowers + "</p><p>Score will be lost.</p>");
+  popup("<p>Copy this code and load a game using it later:</p><p class='code'>" + encodedPowers + "</p><p>Score will be lost.</p>");
 }
 
 function btnLoadGame() {
