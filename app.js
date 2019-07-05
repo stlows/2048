@@ -3,6 +3,9 @@ let fontSizesClass = ["bigger", "big", "normal", "small", "smaller"];
 let score = 0;
 let odds2 = 0.9;
 let defaultBorderColor = "black";
+let gridSize = 4;
+let goal = 2048;
+let alreadyWon = false;
 
 function createEmptyTiles(n) {
   let tiles = [];
@@ -12,7 +15,7 @@ function createEmptyTiles(n) {
     tiles.push({
       x: x,
       y: y,
-      value: Math.pow(2, i + 1) // */ null
+      value: null
     });
   }
   return tiles;
@@ -25,7 +28,7 @@ function getEmptyTiles() {
 function flashBoardBorder(color, times, interval) {
   let board = document.getElementById("game-board");
   let count = 1;
-  let flashId = setInterval(function() {
+  let flashId = setInterval(function () {
     if (board.style.borderColor === defaultBorderColor) {
       board.style.borderColor = color;
     } else {
@@ -39,6 +42,7 @@ function flashBoardBorder(color, times, interval) {
   }, interval);
   board.style.borderColor = color;
 }
+
 function updateBoard() {
   let board = document.getElementById("game-board");
   board.innerHTML = "";
@@ -50,6 +54,7 @@ function updateBoard() {
   let scoreDOM = document.getElementById("score-value");
   scoreDOM.innerHTML = score;
 }
+
 function getTileDOMObject(tile) {
   let tileDiv = document.createElement("div");
   tileDiv.classList.add("tile");
@@ -67,32 +72,80 @@ function getTileDOMObject(tile) {
   return tileDiv;
 }
 
+
 function addNewTile() {
-  let emptyTiles = getEmptyTiles(tiles);
-  if (emptyTiles.length === 0) {
-    gameOver();
-    return null;
-  }
+  let emptyTiles = getEmptyTiles();
   let r = randomElement(emptyTiles);
   if (Math.random() < odds2) {
     r.value = 2;
   } else {
     r.value = 4;
   }
+
   updateBoard();
+
+  if (noPossibleMove()) {
+    gameOver();
+    return null;
+  }
+}
+
+function noPossibleMove() {
+  if (tiles.some(t => t.value === null)) {
+    return false;
+  }
+  for (let i = 0; i < tiles.length; i++) {
+    let neighbors = getNeighbors(tiles[i]);
+    console.log(neighbors);
+    if (neighbors.some(t => t.value === tiles[i].value)) {
+      return false;
+    }
+  }
+  return true;
+
+}
+
+function getNeighbors(tile) {
+  let result = [];
+  if (tile.y > 0) {
+    result.push(getTile(tile.x, tile.y - 1))
+  }
+  if (tile.x > 0) {
+    result.push(getTile(tile.x - 1, tile.y))
+  }
+  if (tile.y < Math.sqrt(tiles.length) - 1) {
+    result.push(getTile(tile.x, tile.y + 1))
+  }
+  if (tile.x < Math.sqrt(tiles.length) - 1) {
+    result.push(getTile(tile.x + 1, tile.y))
+  }
+  return result;
+}
+
+function getTile(x, y) {
+  return tiles.find(t => t.x === x && t.y === y)
 }
 
 function gameOver() {
+  popup("You lost...<br>You scored " + score + " points.")
+}
+
+function popup(msg) {
   let board = document.getElementById("game-board");
-  console.log("game over");
+  let currentPopup = document.getElementById("popup");
+  if (currentPopup) {
+    currentPopup.parentElement.removeChild(currentPopup)
+  };
   let overlap = document.createElement("div");
   overlap.classList.add("overlap");
+  overlap.id = "popup";
   let overlapContent = document.createElement("div");
   overlapContent.classList.add("overlap-content");
   overlap.appendChild(overlapContent);
-  overlapContent.innerHTML = "You got to 2048 !";
+  overlapContent.innerHTML = msg + "<p>Press any arrow to continue.</p>";
   board.appendChild(overlap);
 }
+
 
 function move(e) {
   let validMove = ["ArrowRight", "ArrowLeft", "ArrowDown", "ArrowUp"].some(s => s === e.key);
@@ -107,6 +160,10 @@ function move(e) {
     if (somethingMoved) {
       updateBoard();
       addNewTile();
+      if (tiles.some(t => t.value === goal) && !alreadyWon) {
+        popup("<p>You won !</p>");
+        alreadyWon = true;
+      }
     } else {
       flashBoardBorder("red", 3, 70);
     }
@@ -136,6 +193,7 @@ function isSameTiles(tiles1, tiles2) {
   }
   return true;
 }
+
 function isSameTile(tile1, tile2) {
   return tile1.x === tile2.x && tile1.y === tile2.y && tile1.value === tile2.value;
 }
@@ -155,6 +213,7 @@ function getRow(key, i) {
 
   return toReturn;
 }
+
 function moveRow(tiles) {
   crush(tiles);
   shift(tiles);
@@ -188,6 +247,7 @@ function crush(tiles) {
     }
   }
 }
+
 function shift(tiles) {
   let i = 0;
   while (i < tiles.length - 1 && tiles[i].value) {
@@ -207,49 +267,36 @@ function randomElement(a) {
 }
 
 function newGame() {
-  tiles = createEmptyTiles(4);
-  //addNewTile();
-  //addNewTile();
+  tiles = createEmptyTiles(gridSize);
+  addNewTile();
+  addNewTile();
   updateBoard();
 }
 
-//newGame();
+function saveGame() {
+  let encodedPowers = tiles.map(t => t.value ? (Math.log(t.value) / Math.log(2)).toString(16) : 0).join("");
+  popup("<p>Copy this code and load a game using it later:</p><p>" + encodedPowers + "</p><p>Score will be lost.</p>")
+}
 
-// let tiles = [{ x: 0, y: 0, value: null }, { x: 1, y: 0, value: 4 }, { x: 2, y: 0, value: 2 }, { x: 3, y: 0, value: 2 }];
-// console.log(tiles.map(x => x.value));
-// crush(tiles);
-// shift(tiles);
-// crush(tiles);
-// console.log(tiles.map(x => x.value));
+function btnLoadGame() {
+  popup("<p>Enter code:</p><input type='text' id='encodedPowers' /><br><button onclick='loadGame()' class='btn'>Go</button>")
+}
 
-// console.log("----");
-// tiles = [{ x: 0, y: 0, value: null }, { x: 1, y: 0, value: null }, { x: 2, y: 0, value: null }, { x: 3, y: 0, value: null }];
-// console.log(tiles.map(x => x.value));
-// crush(tiles);
-// shift(tiles);
-// crush(tiles);
-// console.log(tiles.map(x => x.value));
-
-// console.log("----");
-// tiles = [{ x: 0, y: 0, value: 2 }, { x: 1, y: 0, value: 2 }, { x: 2, y: 0, value: 2 }, { x: 3, y: 0, value: 2 }];
-// console.log(tiles.map(x => x.value));
-// crush(tiles);
-// shift(tiles);
-// crush(tiles);
-// console.log(tiles.map(x => x.value));
-
-// console.log("----");
-// tiles = [{ x: 0, y: 0, value: 2 }, { x: 1, y: 0, value: null }, { x: 2, y: 0, value: 2 }, { x: 3, y: 0, value: 2 }];
-// console.log(tiles.map(x => x.value));
-// crush(tiles);
-// shift(tiles);
-// crush(tiles);
-// console.log(tiles.map(x => x.value));
-
-// console.log("----");
-// tiles = [{ x: 0, y: 0, value: 2 }, { x: 1, y: 0, value: null }, { x: 2, y: 0, value: 2 }, { x: 3, y: 0, value: 2 }];
-// console.log(tiles.map(x => x.value));
-// crush(tiles);
-// shift(tiles);
-// crush(tiles);
-// console.log(tiles.map(x => x.value));
+function loadGame() {
+  let encodedPowers = document.getElementById("encodedPowers").value;
+  console.log(encodedPowers);
+  console.log(encodedPowers.length);
+  if (encodedPowers.length !== 16) {
+    popup("Incorect code.<br>Try again...")
+    return;
+  }
+  let newTiles = encodedPowers
+    .split("")
+    .map(s => s === "0" ? null : Math.pow(2, parseInt(s, 16)));
+  tiles = createEmptyTiles(gridSize);
+  score = 0;
+  for (let i = 0; i < tiles.length; i++) {
+    tiles[i].value = newTiles[i]
+  }
+  updateBoard();
+}

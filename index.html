@@ -1,33 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <link rel="stylesheet" href="app.min.css" />
-    <title>2048</title>
-    
-  </head>
-  <body>
-    <div class="container">
-      <header>
-          <h1>2048</h1>
-          <h4>Developped by <a href="https://www.vbeaulieu.com" target="_blank">Vincent Beaulieu</a></h4>
-          <h4>Source code on <a href="https://github.com/stlows/2048" target="_blank">github</a></h4>
-      </header>
-        
-      <div id="game-board"></div>
 
-      <div class="score">Score: <span id="score-value">0</span></div>
-      <div class="controls">
-            <button class="btn" onclick="newGame()">New game</button>
-          </div>
-      </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <link rel="stylesheet" href="app.min.css" />
+  <title>2048</title>
+
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>2048</h1>
+      <h4>Developped by <a href="https://www.vbeaulieu.com" target="_blank">Vincent Beaulieu</a></h4>
+      <h4>Source code on <a href="https://github.com/stlows/2048" target="_blank">github</a></h4>
+    </header>
+
+    <div id="game-board"></div>
+
+    <div class="score">Score: <span id="score-value">0</span></div>
+    <div class="controls">
+      <button class="btn" onclick="newGame()">New game</button>
+      <button class="btn" onclick="saveGame()">Save game</button>
+      <button class="btn" onclick="btnLoadGame()">Load game</button>
     </div>
-  </body>
-  <script src="app.js"></script>
-  <script>
-      document.onkeydown = function(e) {move(e)};
-      window.onload = function() { newGame(); addNewTile() }
-    </script>
+  </div>
+  </div>
+</body>
+<script src="app.js"></script>
+<script>
+  document.onkeydown = function (e) {
+    move(e)
+  };
+  window.onload = function () {
+    newGame();
+  }
+</script>
+
 </html>
