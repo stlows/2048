@@ -215,7 +215,6 @@ function popup(msg) {
 }
 
 function move(e) {
-  console.log("moving", e);
   if (noPossibleMove()) {
     newGame();
     return;
@@ -390,7 +389,6 @@ function loadGame() {
 // Took from stackoverflow with some modifications
 // https://stackoverflow.com/questions/15084675/how-to-implement-swipe-gestures-for-mobile-devices
 function detectSwipe(el) {
-  console.log("detecting swipe");
   swipe_det = new Object();
   swipe_det.sX = 0;
   swipe_det.sY = 0;
